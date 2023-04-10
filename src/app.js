@@ -1,27 +1,10 @@
 const express = require('express');
-const ProductManager = require('./ProductManager');
-
 const app = express();
-const port = process.env.PORT || 8080;
-const productManager = new ProductManager('./src/products.json');
+const productsRouter = require('./productsRouter');
+const cartsRouter = require('./cartsRouter.js');
 
-app.get('/products', (req, res) => {
-    const limit = req.query.limit;
-    const products = productManager.getProducts(limit);
-    res.json({ products });
-});
+app.use(express.json());
+app.use('/api/products', productsRouter);
+app.use('/api/carts', cartsRouter);
 
-app.get('/products/:pid', (req, res) => {
-    const productId = parseInt(req.params.pid);
-    const product = productManager.getProductById(productId);
-  
-    if (product) {
-      res.json(product);
-    } else {
-      res.status(404).json({ error: `Product with id ${productId} not found` });
-    }
-  });
-
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+app.listen(8080, () => console.log('Server running on port 8080'));

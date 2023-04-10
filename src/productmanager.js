@@ -28,24 +28,31 @@ class ProductManager {
   }
 
   addProduct(product) {
-    const { title, description, price, thumbnail, code, stock } = product;
-    if (!title || !description || !price || !thumbnail || !code || !stock) {
-      console.error('All fields are mandatory');
+    const { title, description, code, price, stock, category, thumbnails } = product;
+    const status = product.status === undefined ? true : product.status;
+
+    if (!title || !description || !code || !price || !stock || !category) {
+      console.error('All fields except for thumbnails are mandatory');
       return;
     }
+
     if (this.products.some((product) => product.code === code)) {
       console.error(`Product with code ${code} already exists`);
       return;
     }
+
     const newProduct = {
       id: this.getNextId(),
       title,
       description,
-      price,
-      thumbnail,
       code,
+      price,
+      status,
       stock,
+      category,
+      thumbnails: thumbnails || []
     };
+
     this.products.push(newProduct);
     this.saveProducts();
     console.log(`Product with id ${newProduct.id} added successfully`);
