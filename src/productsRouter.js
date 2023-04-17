@@ -4,6 +4,16 @@ const ProductManager = require('./ProductManager');
 
 const productManager = new ProductManager('./products.json');
 
+router.get('/', (req, res) => {
+  const products = productManager.loadProducts();
+  res.render('home', { products });
+});
+
+router.get('/realtimeproducts', (req, res) => {
+  const products = productManager.loadProducts();
+  res.render('realTimeProducts', { products });
+});
+
 router.post('/', (req, res) => {
   const { title, description, code, price, stock, category, thumbnails } = req.body;
 
@@ -27,3 +37,4 @@ router.post('/', (req, res) => {
 // Other router endpoints...
 
 module.exports = router;
+

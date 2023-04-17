@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real Time Products</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ws = new WebSocket('ws://' + window.location.host);
+      const productList = document.getElementById('product-list');
+
+      // Handle adding products
+      const addProductForm = document.getElementById('add-product-form');
+      addProductForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const productTitle = document.getElementById('product-title').value;
+        const productDescription = document.getElementById('product-description').value;
+        const productCode = document.getElementById('product-code').value;
+        const productPrice = document.getElementById('product-price').value;
+        const productStock = document.getElementById('product-stock').value;
+        const productCategory = document.getElementById('product-category').value;
+        const productThumbnails = document.getElementById('product-thumbnails').value;
+
+        ws.send(JSON.stringify({
+          action: 'addProduct',
+          title: productTitle,
+          description: productDescription,
+          code: productCode,
+          price: productPrice,
+          stock: productStock,
+          category: productCategory,
+          thumbnails: productThumbnails ? productThumbnails.split(',') : []
+        }));
+
+        // Clear input fields
+        document.getElementById('product-title').value = '';
+        document.getElementById('product-description').value = '';
+        document.getElementById('product-code').value = '';
+        document.getElementById('product-price').value = '';
+        document.getElementById('product-stock').value = '';
+        document.getElementById('product-category').value = '';
+        document.getElementById('product-thumbnails').value = '';
+      });
+
+      // Handle deleting products
+      const deleteProductForm = document.getElementById('delete-product-form');
+deleteProductForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const productId = parseInt(document.getElementById('delete-product-id').value);
+  ws.send(JSON.stringify({ action: 'deleteProduct', id: productId }));
+
+        // Clear input field
+        document.getElementById('delete-product-id').value = '';
+      });
+
+      // Update the product list in real-time
+      ws.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+        if (data.action === 'updateProducts') {
+          const products = data.products;
+          productList.innerHTML = '';
+
+          products.forEach((product) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${product.description} - ${product.price}`;
+            productList.appendChild(listItem);
+          });
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Real Time Products</h1>
+  <ul id="product-list">
+    {{#each products}}
+      <li>{{this.description}} - {{this.price}}</li>
+    {{/each}}
+  </ul>
+
+  <h2>Add Product</h2>
+  <form id="add-product-form">
+    <input type="text" id="product-title" placeholder="Product Title" />
+    <input type="text" id="product-description" placeholder="Product Description" />
+    <input type="text" id="product-code" placeholder="Product Code" />
+    <input type="number" id="product-price" placeholder="Product Price" step="0.01" />
+    <input type="number" id="product-stock" placeholder="Product Stock" />
+    <input type="text" id="product-category" placeholder="Product Category" />
+    <input type="text" id="product-thumbnails" placeholder="Product Thumbnails (optional)" />
+    <button type="submit">Add Product</button>
+  </form>
+
+  <h2>Delete Product</h2>
+<form id="delete-product-form">
+  <input type="number" id="delete-product-id" placeholder="Product ID" />
+  <button type="submit">Delete Product</button>
+</form>
+</body>
+</html>
+
